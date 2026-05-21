@@ -60,3 +60,6 @@ def me(current: UserRecord = Depends(get_current_user)) -> UserPublic:
     return UserPublic(
         email=current["email"], role=current["role"], full_name=current["full_name"]
     )
+
+
+# cache test comment
