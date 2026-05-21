@@ -1,0 +1,38 @@
+
+# Talium Tech — Local Development Stack
+# Starts backend (FastAPI) + frontend (nginx + React) together
+# Usage: docker compose up --build
+#        docker compose down
+
+services:
+
+  # ── BACKEND ─────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: talium-api
+    ports:
+      - "8000:8000"
+    environment:
+      - JWT_SECRET=dev-secret-change-in-production
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  # ── FRONTEND ─────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: talium-web
+    ports:
+      - "3000:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+

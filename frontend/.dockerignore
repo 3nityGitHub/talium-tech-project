@@ -1,0 +1,24 @@
+# Dependencies — npm ci installs these fresh
+node_modules/
+
+# Build output — Stage 2 gets this from Stage 1, not the host
+dist/
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Environment and secrets
+.env
+*.env
+
+# Development config (not needed in build)
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Git
+.git/
+.gitignore
