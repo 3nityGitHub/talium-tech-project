@@ -1,0 +1,28 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Tests — not needed in production image
+tests/
+
+# Dev config — not needed in production image
+pyproject.toml
+
+# Docker files — no need to copy the recipe into the image it creates
+Dockerfile
+.dockerignore
+
+# Secrets and local env
+.env
+*.env
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
