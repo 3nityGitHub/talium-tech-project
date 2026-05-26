@@ -17,6 +17,10 @@ env:
   FRONTEND_TASK_FAMILY: talium-tech-frontend
   ALB_URL: http://talium-tech-alb-649139136.eu-west-2.elb.amazonaws.com
 
+permissions:
+  contents: read
+  id-token: write
+  
 jobs:
   test:
     name: Run Tests
