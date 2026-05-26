@@ -166,8 +166,8 @@ deploy:
 
       - name: Deployment complete
         run: |
-          echo "======================================"
+          echo "***************************************"
           echo "Talium Tech deployed successfully"
           echo "Image tag: ${{ needs.build.outputs.image-tag }}"
           echo "URL: $ALB_URL"
-          echo "======================================"
+          echo "***************************************"
