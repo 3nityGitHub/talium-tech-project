@@ -24,16 +24,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
       - name: Install backend dependencies
         working-directory: backend
         run: pip install -r requirements.txt
-
       - name: Run pytest
         working-directory: backend
         run: pytest -v
@@ -47,22 +44,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Generate image tag
         id: tag
         run: echo "tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-
       - name: Build and push backend image
         run: |
           docker buildx build \
@@ -71,7 +64,6 @@ jobs:
             --tag $ECR_BACKEND:latest \
             --push \
             ./backend
-
       - name: Build and push frontend image
         run: |
           docker buildx build \
@@ -93,14 +85,12 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
-
       - name: Update backend ECS service
         run: |
           TASK_DEF=$(aws ecs describe-task-definition \
             --task-definition $BACKEND_TASK_FAMILY \
             --query 'taskDefinition' \
             --output json)
-
           NEW_TASK_DEF=$(echo $TASK_DEF | python3 -c "
           import json, sys
           td = json.load(sys.stdin)
@@ -109,24 +99,20 @@ jobs:
               td.pop(key, None)
           print(json.dumps(td))
           ")
-
           NEW_ARN=$(aws ecs register-task-definition \
             --cli-input-json "$NEW_TASK_DEF" \
             --query 'taskDefinition.taskDefinitionArn' \
             --output text)
-
           aws ecs update-service \
             --cluster $ECS_CLUSTER \
             --service $BACKEND_SERVICE \
             --task-definition $NEW_ARN
-
       - name: Update frontend ECS service
         run: |
           TASK_DEF=$(aws ecs describe-task-definition \
             --task-definition $FRONTEND_TASK_FAMILY \
             --query 'taskDefinition' \
             --output json)
-
           NEW_TASK_DEF=$(echo $TASK_DEF | python3 -c "
           import json, sys
           td = json.load(sys.stdin)
@@ -135,31 +121,26 @@ jobs:
               td.pop(key, None)
           print(json.dumps(td))
           ")
-
           NEW_ARN=$(aws ecs register-task-definition \
             --cli-input-json "$NEW_TASK_DEF" \
             --query 'taskDefinition.taskDefinitionArn' \
             --output text)
-
           aws ecs update-service \
             --cluster $ECS_CLUSTER \
             --service $FRONTEND_SERVICE \
             --task-definition $NEW_ARN
-
       - name: Wait for backend deployment
         run: |
           aws ecs wait services-stable \
             --cluster $ECS_CLUSTER \
             --services $BACKEND_SERVICE
           echo "Backend deployment stable"
-
       - name: Wait for frontend deployment
         run: |
           aws ecs wait services-stable \
             --cluster $ECS_CLUSTER \
             --services $FRONTEND_SERVICE
           echo "Frontend deployment stable"
-
       - name: Deployment complete
         run: |
           echo "======================================"
